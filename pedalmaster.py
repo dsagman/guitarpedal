@@ -63,14 +63,14 @@ dry      = pyo.Input()
 
 # wah effect
 follow   = pyo.Follower(audio)
-wahfq    = pyo.Scale(follow, outmin=300, outmax=8800)
+wahfq    = pyo.Scale(follow, outmin=300, outmax=20000)
 
 delay    = pyo.SmoothDelay(audio, feedback=0.15)
 reverb   = pyo.Freeverb(delay)
 distort  = pyo.Disto(reverb)
 eq       = pyo.MultiBand(distort, num=3, mul=[1,1,1])
 wet      = pyo.Mix([eq])
-wah      = pyo.ButBP(wet, freq=wahfq, q=20)
+wah      = pyo.ButBP(wet, freq=wahfq, q=30)
 
 mix = pyo.Mix([dry, wet, wah]).out()
 amplitude = pyo.RMS(mix, function=RMS_meter_callback)
@@ -78,6 +78,7 @@ amplitude = pyo.RMS(mix, function=RMS_meter_callback)
 # use signal to wait for ctrl-c to exit
 signal.signal(signal.SIGINT, ctrl_c_signal_handler)
 print('\033c\033[?25l\033[5G')  # clear the terminal screen, hide cursor, move to column 5
+print('Pedal amp and effects running. Press Ctrl-C to stop.')
 start_time = time.time()
 samples = 0
 if meter:
@@ -86,7 +87,9 @@ if meter:
 
 while True:
     samples += debug
-    new_vals = [int(pots[n].value*100)/100 for n in range(numlines)]
+    #I wired all my pots backwards, so the "1.0-" below compensates for that
+    #You can swap the outermost wire to the other outermost pin on the pot to the same effect
+    new_vals = [1.0-int(pots[n].value*100)/100 for n in range(numlines)]
     for i, nv in enumerate(new_vals):
         if abs(vals[i]-nv) > 0.05:
             vals[i] = nv
@@ -97,12 +100,12 @@ while True:
         print(f'\033[{numlines+1}F', end='')
     if leds_on:
         pot_leds.value = [vals[n] for n in range(len(pot_leds))]
-    dry.mul         = vals[0]
-    wet.mul         = 1 - vals[0] 
+    dry.mul         = 1 - vals[0]
+    wet.mul         = vals[0] 
     delay.delay     = vals[1]
     reverb.size     = vals[2]
     distort.drive   = vals[3]**0.05
-    wah.mul         = vals[4]*20
+    wah.mul         = vals[4]*30
     eq.mul          = [vals[5]*2, vals[6]*2, vals[7]*2]
 
 
