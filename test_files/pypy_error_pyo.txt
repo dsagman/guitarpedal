@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/pi/guitar_audio/pedalmaster.py", line 5, in <module>
+    import pyo
+  File "/home/pi/.local/lib/pypy3.7/site-packages/pyo/__init__.py", line 27, in <module>
+    from .lib import analysis as analysis
+  File "/home/pi/.local/lib/pypy3.7/site-packages/pyo/lib/analysis.py", line 32, in <module>
+    from ._core import *
+  File "/home/pi/.local/lib/pypy3.7/site-packages/pyo/lib/_core.py", line 66, in <module>
+    from .._pyo import *
+ImportError: /home/pi/.local/lib/pypy3.7/site-packages/pyo/_pyo.pypy37-pp73-linux-gnu.so: undefined symbol: PyFloat_FromString
