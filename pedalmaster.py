@@ -1,20 +1,24 @@
 #!/usr/bin/env python3
 # A guitar effects application for raspberry pi
-from gpiozero import MCP3008, LEDBoard, LEDBarGraph
+import os
+import shutil
+from gpiozero import MCP3008, LEDBoard, LEDBarGraph, Button, LED
 import signal, time, argparse
 import pyo
+
 
 ap = argparse.ArgumentParser(description='A guitar effects application for raspberry pi using pyo and a bunch of wires. There was some blood involved in the making.')
 ap.add_argument('--debug', action='store_true', help='Turn on printing of potentiometer values')
 ap.add_argument('--no_leds', action='store_false', help='Turn on LED funcionality')
 ap.add_argument('--meter', action='store_true', help='Show the volume/amplitude meter')
+ap.add_argument('--looptest', action='store_true', help='Print the status of the looper switch')
 args = ap.parse_args()
 
 debug = args.debug
 leds_on = args.no_leds
 meter = args.meter
+looptest = args.looptest
 
-pot_poll_time = 0.5
 numlines = 8
 pot_leds = LEDBoard(4, 27, 13, 26, 23, 22, 12, 24, pwm=True)
 vu_leds  = LEDBarGraph(14, 16, 25, 6, 5, 17)
@@ -52,6 +56,13 @@ def RMS_meter_callback(*args):
             print('\033[5G\033[32m'+'|'*10+'\033[33m'+'|'*6+'\033[31m'+'|'*(amp-16)+' '*5)
         print('\033[1F', end='')
 
+
+def looper_func():
+    global loop_button_clicked
+    loop_button_clicked = 1+(loop_button_clicked%3)
+    return
+                  
+
 max_RMS = 0
 VU_factor = 1
 
@@ -71,13 +82,28 @@ distort  = pyo.Disto(reverb)
 eq       = pyo.MultiBand(distort, num=3, mul=[1,1,1])
 wet      = pyo.Mix([eq])
 wah      = pyo.ButBP(wet, freq=wahfq, q=30)
-
-mix = pyo.Mix([dry, wet, wah]).out()
+mix       = pyo.Mix([dry,wet,wah]).out()
 amplitude = pyo.RMS(mix, function=RMS_meter_callback)
+
+
+# looper stuff
+cdir        = os.path.dirname(os.path.abspath(__file__))
+silence     = cdir+'/silent.wav'
+loop_file   = cdir+'/pedalloop.wav'
+shutil.copy(silence,loop_file)
+loop_button_clicked = 0
+loop_button = Button(2)
+loop_button.when_pressed = looper_func
+loop_vol    = 0.3
+looper      = pyo.SfPlayer(loop_file, loop=True, mul=loop_vol)
+loop_led    = LED(15)
+loop_led.off()
+
 
 # use signal to wait for ctrl-c to exit
 signal.signal(signal.SIGINT, ctrl_c_signal_handler)
-print('\033c\033[?25l\033[5G')  # clear the terminal screen, hide cursor, move to column 5
+if not debug:
+    print('\033c\033[?25l\033[5G')  # clear the terminal screen, hide cursor, move to column 5
 print('Pedal amp and effects running. Press Ctrl-C to stop.')
 start_time = time.time()
 samples = 0
@@ -85,8 +111,36 @@ if meter:
     print('\033[5G\033[35m'+'VU')
     print('\033[5G\033[32m'+'-'*10+'\033[33m'+'-'*6+'\033[31m'+'-'*4)    
 
+recording = False
+looping   = False
+if looptest:
+    print("Waiting")
 while True:
     samples += debug
+    if loop_button_clicked == 1 and not recording:
+        if looptest:
+            print("Recording")
+        recording = True
+        looping   = False
+        looper.stop()
+        loop_led.blink(on_time=0.3, off_time=0.3)
+        loop_rec = pyo.Record(mix, filename=loop_file, fileformat=0, sampletype=1)
+    if loop_button_clicked == 2 and recording:
+        if looptest:
+            print("Looping")
+        recording = False
+        looping   = True
+        loop_rec.stop()
+        loop_led.on()
+        looper = pyo.SfPlayer(loop_file, loop=True, mul=loop_vol).out() #playback a little quieter than current volume
+    if loop_button_clicked == 3 and looping:
+        if looptest:
+            print("Waiting")
+        recording = False
+        looping = False
+        loop_led.off()
+        looper.stop()
+
     #I wired all my pots backwards, so the "1.0-" below compensates for that
     #You can swap the outermost wire to the other outermost pin on the pot to the same effect
     new_vals = [1.0-int(pots[n].value*100)/100 for n in range(numlines)]

@@ -1,0 +1,17 @@
+Starting program: /usr/bin/python sfplayer_test.py
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/arm-linux-gnueabihf/libthread_db.so.1".
+[New Thread 0x720e1440 (LWP 3163)]
+[Thread 0x720e1440 (LWP 3163) exited]
+[New Thread 0x71eff440 (LWP 3164)]
+
+Thread 1 "python" received signal SIGSEGV, Segmentation fault.
+0x76fba1dc in strlen () from /usr/lib/arm-linux-gnueabihf/libarmmem-v7l.so
+#0  0x76fba1dc in strlen () at /usr/lib/arm-linux-gnueabihf/libarmmem-v7l.so
+#1  0x0008ef0c in do_mkvalue (p_format=p_format@entry=0x7efff244, p_va=p_va@entry=0x7efff240, flags=flags@entry=1) at ../Python/modsupport.c:415
+#2  0x0008f934 in do_mktuple (p_format=0x7efff244, p_format@entry=0x7efff23c, p_va=0x7efff240, p_va@entry=0x7efff238, endchar=endchar@entry=0 '\000', n=6, flags=<optimized out>, 
+    flags@entry=1) at ../Python/modsupport.c:264
+#3  0x0008e9ec in va_build_value (format=<optimized out>, va=..., flags=1) at ../Python/modsupport.c:564
+#4  0x0015c880 in _Py_BuildValue_SizeT (format=0x76453310 "lffiss") at ../Python/modsupport.c:530
+#5  0x761ada28 in p_sndinfo () at /home/pi/.local/lib/python3.9/site-packages/pyo/_pyo.cpython-39-arm-linux-gnueabihf.so
+#6  0x764ccfc8 in  ()

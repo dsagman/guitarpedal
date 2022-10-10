@@ -1,0 +1,11 @@
+Cannot connect to server socket err = No such file or directory
+Cannot connect to server request channel
+jack server is not running or cannot be started
+JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
+JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
+Fatal Python error: Segmentation fault
+
+Current thread 0x76f9e980 (most recent call first):
+  File "/home/pi/.local/lib/python3.9/site-packages/pyo/lib/_core.py", line 208 in sndinfo
+  File "/home/pi/.local/lib/python3.9/site-packages/pyo/lib/players.py", line 116 in __init__
+  File "/home/pi/guitar_audio/test_files/sfplayer_test.py", line 8 in <module>

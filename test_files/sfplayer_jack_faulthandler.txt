@@ -1,0 +1,6 @@
+Fatal Python error: Segmentation fault
+
+Current thread 0x76fc7980 (most recent call first):
+  File "/usr/local/lib/python3.9/dist-packages/pyo-1.0.4-py3.9-linux-armv7l.egg/pyo/lib/_core.py", line 178 in sndinfo
+  File "/usr/local/lib/python3.9/dist-packages/pyo-1.0.4-py3.9-linux-armv7l.egg/pyo/lib/players.py", line 113 in __init__
+  File "/home/pi/guitar_audio/test_files/sfplayer_test.py", line 8 in <module>
