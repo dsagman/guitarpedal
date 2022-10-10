@@ -13,6 +13,10 @@ In depth code walkthrough here:
 
 https://www.youtube.com/watch?v=LpFfZ5o4mEs
 
+Looper video here:
+
+https://youtu.be/jMI3nN0OYLE
+
 Hackaday project here:
 
 https://hackaday.io/project/186218-raspberry-pi-guitar-amplifier
